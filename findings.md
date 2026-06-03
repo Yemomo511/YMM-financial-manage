@@ -22,11 +22,16 @@
 | 一期仅覆盖 A 股静态信息、实时行情、分钟 K 线、公告、新闻和交易日历 | 满足“保证 A 股相关信息及时抵达”的主目标，同时控制实现范围 |
 | 为未来模型预置 Mock 账户与 AI Context 扩展点，但不实现模型推理 | 保证当前文档既可落地，又不越过本期范围 |
 | 扩展 `ARCHITECTURE.md` 时保留原有接口/注释规范，并补充系统分层和目录结构 | 既延续已有团队习惯，又让文档能真正指导后续实现 |
+| WebSocket 一期采用公共源 HTTP 轮询 + 系统内 WebSocket 推送 | 公共免费源通常不是上游 WebSocket；这样无需 API Key 即可实时看到 A 股行情 |
+| 运行时使用内存仓库闭环，Prisma schema 固定数据库结构 | 保证本地看板无需数据库也能跑，同时保留 PostgreSQL 真源的落地模型 |
+| 东方财富公共源失败时启用 Mock fallback | 非交易时段或网络不可用时仍能验收端到端链路 |
 
 ## 遇到的问题
 | 问题 | 解决方案 |
 |------|---------|
 | 目前仓库实现代码很少，缺少现成上下文 | 文档中用模块契约和数据流约束后续实现边界 |
+| Prisma engine 在受限网络下下载不稳定 | 使用 `prisma validate` 校验 schema，并避免运行时代码强依赖生成客户端 |
+| 沙箱禁止本地端口监听与连接 | WebSocket 自动化测试和本地验收使用提升权限执行 |
 
 ## 资源
 - `/Users/bytedance/Project/Open/YMM-financial-manage/AGENTS.md`
@@ -34,9 +39,13 @@
 - `/Users/bytedance/Project/Open/YMM-financial-manage/README.md`
 - `/Users/bytedance/Project/Open/YMM-financial-manage/docs/prd/architecture-design.md`
 - `/Users/bytedance/Project/Open/YMM-financial-manage/docs/prd/financial-task-A.md`
+- `/Users/bytedance/Project/Open/YMM-financial-manage/src/market/EastmoneyPublicAdapter.ts`
+- `/Users/bytedance/Project/Open/YMM-financial-manage/src/stream/MarketWebSocketGateway.ts`
+- `/Users/bytedance/Project/Open/YMM-financial-manage/public/index.html`
 
 ## 视觉/浏览器发现
-- 本次未涉及视觉材料
+- 本地看板通过 `http://127.0.0.1:3000` 提供首屏行情表格
+- WebSocket 手动验收收到 `market.stock.tick`，示例来源为 `eastmoney-public`
 
 ---
 *每执行2次查看/浏览器/搜索操作后更新此文件*

@@ -1,10 +1,10 @@
 # 任务计划：模拟炒股系统方案文档
 
 ## 目标
-在 `docs/prd` 目录输出模拟炒股系统的架构设计与 A 股监听/消息队列一期实现方案，明确模块职责、接口边界与数据流转关系。
+在 `docs/prd` 目录输出模拟炒股系统的架构设计与 A 股监听/消息队列一期实现方案，并落地最小可运行的 A 股实时 WebSocket 看板。
 
 ## 当前阶段
-阶段 5
+阶段 12
 
 ## 各阶段
 
@@ -44,6 +44,42 @@
 - [x] 同步记录与 PRD 的关系
 - **状态：** complete
 
+### 阶段 7：实时行情工程骨架
+- [x] 初始化 TypeScript、Vitest、pnpm 脚本
+- [x] 建立最小服务入口
+- [x] 提交工程骨架
+- **状态：** complete
+
+### 阶段 8：账户与数据模型
+- [x] 定义 Mock 账户初始化能力
+- [x] 定义 Prisma 核心表结构
+- [x] 验证账户测试与 Prisma schema
+- **状态：** complete
+
+### 阶段 9：A 股公共行情源与标准化
+- [x] 实现东方财富公共源 Adapter
+- [x] 实现 Mock fallback
+- [x] 标准化 `market.stock.tick` 事件信封
+- **状态：** complete
+
+### 阶段 10：Outbox 与消息发布
+- [x] 实现行情仓库、快照与 Outbox
+- [x] 实现 Redis Stream 事件总线适配
+- [x] 验证 Outbox 发布链路
+- **状态：** complete
+
+### 阶段 11：WebSocket 实时看板
+- [x] 实现 `/ws/market` 订阅网关
+- [x] 实现本地行情看板
+- [x] 验证真实 WebSocket 推送
+- **状态：** complete
+
+### 阶段 12：文档与最终验证
+- [x] 补充 README、`.env.example`、`docker-compose.yml`
+- [x] 同步规划与验证记录
+- [x] 执行最终测试、构建和 schema 校验
+- **状态：** complete
+
 ## 关键问题
 1. 一期只做 A 股监听与消息队列，如何定义边界，避免提前设计模型与实盘能力。
 2. Mock 交易系统中哪些账户信息需要预置在数据库中，才能满足未来大模型接入。
@@ -55,11 +91,14 @@
 | 当前系统以 Mock 和数据库主导为前提 | 用户明确要求无需账号接入、以数据库为准 |
 | 一期采用数据库 + Outbox + Redis Stream/BullMQ 的组合 | 同时满足数据库真源、事件分发与后续模型扩展 |
 | `ARCHITECTURE.md` 负责长期架构约束，PRD 负责当前业务方案 | 避免项目级红线与阶段性方案混在一起 |
+| 一期实现采用公共源轮询 + 系统 WebSocket 推送 | 不依赖商业上游 WebSocket，且能满足本地实时看板验收 |
+| 当前运行时使用内存仓库闭环，Prisma schema 先固定数据库结构 | 避免本地必须启动数据库才能看到实时 WebSocket；数据库结构仍按 PRD 保留 |
 
 ## 遇到的错误
 | 错误 | 尝试次数 | 解决方案 |
 |------|---------|---------|
-| 暂无 | 1 | 持续记录 |
+| `pnpm prisma:generate` 沙箱内无法下载 Prisma engine | 1 | 申请联网后仍遇到 ECONNRESET，改用 `DATABASE_URL=... pnpm exec prisma validate` 完成 schema 校验 |
+| WebSocket 测试在沙箱内监听/连接 127.0.0.1 返回 EPERM | 2 | 使用提升权限运行端口监听测试和本地 WebSocket 验收 |
 
 ## 备注
 - 随着进度更新阶段状态：pending → in_progress → complete
