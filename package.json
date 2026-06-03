@@ -3,10 +3,10 @@
   "version": "0.0.1",
   "description": "AI Strategy for Financial",
   "type": "module",
-  "main": "dist/main.js",
+  "main": "dist/src/main.js",
   "scripts": {
     "dev": "tsx watch src/main.ts",
-    "start": "node dist/main.js",
+    "start": "node dist/src/main.js",
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
