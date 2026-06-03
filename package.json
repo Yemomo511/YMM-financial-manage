@@ -1,0 +1,23 @@
+{
+  "name": "ymm-financial-manage",
+  "version": "0.0.1",
+  "description": "AI Strategy for Financial",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yemomo511/YMM-financial-manage.git"
+  },
+  "keywords": [
+    "Financial",
+    "AI"
+  ],
+  "author": "Yemomo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Yemomo511/YMM-financial-manage/issues"
+  },
+  "homepage": "https://github.com/Yemomo511/YMM-financial-manage#readme"
+}
