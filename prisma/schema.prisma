@@ -1,0 +1,168 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String         @id @default(cuid())
+  accountId         String         @unique @map("account_id")
+  accountName       String         @map("account_name")
+  baseCurrency      String         @map("base_currency")
+  accountType       String         @map("account_type")
+  riskProfile       String         @map("risk_profile")
+  maxPositionRatio  Decimal        @map("max_position_ratio") @db.Decimal(10, 4)
+  maxDailyLossRatio Decimal        @map("max_daily_loss_ratio") @db.Decimal(10, 4)
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+  balance           AccountBalance?
+
+  @@map("accounts")
+}
+
+model AccountBalance {
+  id            String   @id @default(cuid())
+  accountId     String   @unique @map("account_id")
+  initialCash   Decimal  @map("initial_cash") @db.Decimal(18, 2)
+  availableCash Decimal  @map("available_cash") @db.Decimal(18, 2)
+  frozenCash    Decimal  @map("frozen_cash") @db.Decimal(18, 2)
+  totalAsset    Decimal  @map("total_asset") @db.Decimal(18, 2)
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  account       Account  @relation(fields: [accountId], references: [accountId])
+
+  @@map("account_balances")
+}
+
+model StockSymbol {
+  id        String   @id @default(cuid())
+  symbol    String   @unique
+  market    String
+  exchange  String
+  name      String
+  industry  String?
+  status    String
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("stock_symbols")
+}
+
+model MarketTick {
+  id            String   @id @default(cuid())
+  symbol        String
+  market        String
+  price         Decimal  @db.Decimal(18, 4)
+  openPrice     Decimal  @map("open_price") @db.Decimal(18, 4)
+  highPrice     Decimal  @map("high_price") @db.Decimal(18, 4)
+  lowPrice      Decimal  @map("low_price") @db.Decimal(18, 4)
+  prevClose     Decimal  @map("prev_close") @db.Decimal(18, 4)
+  volume        BigInt
+  turnover      Decimal  @db.Decimal(24, 2)
+  changeAmount  Decimal  @map("change_amount") @db.Decimal(18, 4)
+  changePercent Decimal  @map("change_percent") @db.Decimal(10, 4)
+  occurredAt    DateTime @map("occurred_at")
+  source        String
+  traceId       String   @map("trace_id")
+
+  @@index([symbol, occurredAt])
+  @@map("market_ticks")
+}
+
+model MarketQuoteSnapshot {
+  symbol        String   @id
+  market        String
+  lastPrice     Decimal  @map("last_price") @db.Decimal(18, 4)
+  openPrice     Decimal  @map("open_price") @db.Decimal(18, 4)
+  highPrice     Decimal  @map("high_price") @db.Decimal(18, 4)
+  lowPrice      Decimal  @map("low_price") @db.Decimal(18, 4)
+  prevClose     Decimal  @map("prev_close") @db.Decimal(18, 4)
+  volume        BigInt
+  turnover      Decimal  @db.Decimal(24, 2)
+  changeAmount  Decimal  @map("change_amount") @db.Decimal(18, 4)
+  changePercent Decimal  @map("change_percent") @db.Decimal(10, 4)
+  snapshotAt    DateTime @map("snapshot_at")
+
+  @@map("market_quote_snapshots")
+}
+
+model MarketKline1m {
+  id         String   @id @default(cuid())
+  symbol     String
+  market     String
+  bucketAt   DateTime @map("bucket_at")
+  openPrice  Decimal  @map("open_price") @db.Decimal(18, 4)
+  highPrice  Decimal  @map("high_price") @db.Decimal(18, 4)
+  lowPrice   Decimal  @map("low_price") @db.Decimal(18, 4)
+  closePrice Decimal  @map("close_price") @db.Decimal(18, 4)
+  volume     BigInt
+  turnover   Decimal  @db.Decimal(24, 2)
+
+  @@unique([symbol, bucketAt])
+  @@map("market_kline_1m")
+}
+
+model MarketNews {
+  id          String   @id @default(cuid())
+  symbol      String?
+  title       String
+  summary     String?
+  publishedAt DateTime @map("published_at")
+  source      String
+  traceId     String   @map("trace_id")
+
+  @@map("market_news")
+}
+
+model MarketAnnouncement {
+  id               String   @id @default(cuid())
+  symbol           String
+  announcementType String   @map("announcement_type")
+  title            String
+  url              String?
+  publishedAt      DateTime @map("published_at")
+  source           String
+  traceId          String   @map("trace_id")
+
+  @@map("market_announcements")
+}
+
+model MarketTradingCalendar {
+  id          String   @id @default(cuid())
+  market      String
+  tradeDate   DateTime @map("trade_date") @db.Date
+  isOpen      Boolean  @map("is_open")
+  sessionType String   @map("session_type")
+
+  @@unique([market, tradeDate])
+  @@map("market_trading_calendar")
+}
+
+model EventOutbox {
+  id          String    @id @default(cuid())
+  eventId     String    @unique @map("event_id")
+  topic       String
+  payload     Json
+  status      String
+  retryCount  Int       @default(0) @map("retry_count")
+  lastError   String?   @map("last_error")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  publishedAt DateTime? @map("published_at")
+
+  @@index([status, createdAt])
+  @@map("event_outbox")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  traceId   String   @map("trace_id")
+  eventType String   @map("event_type")
+  source    String
+  message   String
+  payload   Json?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([traceId])
+  @@map("audit_logs")
+}
