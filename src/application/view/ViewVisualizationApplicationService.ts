@@ -1,5 +1,5 @@
 import type { Observable, Subscription } from 'rxjs';
-import type { NormalizedMarketEvent } from '../../market/Market.types.js';
+import type { NormalizedMarketEvent } from '../../source/market/Market.types.js';
 import type { ServerBroadcastEvent } from '../../service/market/ServerBroadcastService.js';
 
 /**

@@ -1,5 +1,5 @@
-import type { EventHubService } from '../event/EventHub.types.js';
-import type { MarketRepository } from './MarketRepository.types.js';
+import type { EventHubService } from '../../event/EventHub.types.js';
+import type { MarketRepository } from '../../market/MarketRepository.types.js';
 
 /**
  * @description Outbox 发布器。

@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { AiDecisionApplicationService } from '../../src/application/ai/AiDecisionApplicationService.js';
 import { AiUnderstandingApplicationService } from '../../src/application/ai/AiUnderstandingApplicationService.js';
 import { ViewVisualizationApplicationService } from '../../src/application/view/ViewVisualizationApplicationService.js';
-import type { NormalizedMarketEvent } from '../../src/market/Market.types.js';
+import type { NormalizedMarketEvent } from '../../src/source/market/Market.types.js';
 import type { ServerBroadcastEvent } from '../../src/service/market/ServerBroadcastService.js';
 import type { StockHeartbeatEvent } from '../../src/service/market/StockHeartbeatService.js';
 

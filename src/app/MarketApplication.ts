@@ -4,9 +4,9 @@ import { AiDecisionApplicationService } from '../application/ai/AiDecisionApplic
 import { AiUnderstandingApplicationService } from '../application/ai/AiUnderstandingApplicationService.js';
 import { ViewVisualizationApplicationService } from '../application/view/ViewVisualizationApplicationService.js';
 import { InMemoryEventHubService } from '../event/InMemoryEventHubService.js';
-import { EastmoneyPublicAdapter } from '../market/EastmoneyPublicAdapter.js';
-import { InMemoryMarketRepository } from '../market/InMemoryMarketRepository.js';
-import { OutboxPublisher } from '../market/OutboxPublisher.js';
+import { EastmoneyPublicAdapter } from '../source/market/EastmoneyPublicAdapter.js';
+import { InMemoryMarketRepository } from '../source/market/InMemoryMarketRepository.js';
+import { OutboxPublisher } from '../source/market/OutboxPublisher.js';
 import { ServerBroadcastService } from '../service/market/ServerBroadcastService.js';
 import { StockHeartbeatService } from '../service/market/StockHeartbeatService.js';
 import { MarketWebSocketGateway } from '../stream/MarketWebSocketGateway.js';

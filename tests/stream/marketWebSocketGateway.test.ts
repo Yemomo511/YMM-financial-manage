@@ -4,7 +4,7 @@ import { AddressInfo } from 'node:net';
 import WebSocket from 'ws';
 import { afterEach, describe, expect, it } from 'vitest';
 import { MarketWebSocketGateway } from '../../src/stream/MarketWebSocketGateway.js';
-import type { NormalizedMarketEvent } from '../../src/market/Market.types.js';
+import type { NormalizedMarketEvent } from '../../src/source/market/Market.types.js';
 
 const servers: Array<{ close: () => void }> = [];
 

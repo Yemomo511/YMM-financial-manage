@@ -1,4 +1,4 @@
-import type { NormalizedMarketEvent } from '../../market/Market.types.js';
+import type { NormalizedMarketEvent } from '../../source/market/Market.types.js';
 import { RxServiceBusBase } from '../bus/RxServiceBusBase.js';
 import type { ServerBroadcastPayload, ServiceEventEnvelope } from '../bus/ServiceEvent.types.js';
 import type { StockHeartbeatEvent } from './StockHeartbeatService.js';

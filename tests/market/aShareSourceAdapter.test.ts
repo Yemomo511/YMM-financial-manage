@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { EastmoneyPublicAdapter } from '../../src/market/EastmoneyPublicAdapter.js';
+import { EastmoneyPublicAdapter } from '../../src/source/market/EastmoneyPublicAdapter.js';
 
 describe('EastmoneyPublicAdapter', () => {
   it('maps A share symbols to eastmoney secids and falls back to mock quotes when fetch fails', async () => {

@@ -1,7 +1,7 @@
 import { firstValueFrom } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
 import { ServerBroadcastService } from '../../src/service/market/ServerBroadcastService.js';
-import type { NormalizedMarketEvent } from '../../src/market/Market.types.js';
+import type { NormalizedMarketEvent } from '../../src/source/market/Market.types.js';
 
 describe('ServerBroadcastService', () => {
   it('receives stock heartbeat events and broadcasts the market payload through websocket gateway', async () => {

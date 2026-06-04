@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { InMemoryEventHubService } from '../../src/event/InMemoryEventHubService.js';
-import { InMemoryMarketRepository } from '../../src/market/InMemoryMarketRepository.js';
-import { OutboxPublisher } from '../../src/market/OutboxPublisher.js';
-import type { NormalizedMarketEvent } from '../../src/market/Market.types.js';
+import { InMemoryMarketRepository } from '../../src/source/market/InMemoryMarketRepository.js';
+import { OutboxPublisher } from '../../src/source/market/OutboxPublisher.js';
+import type { NormalizedMarketEvent } from '../../src/source/market/Market.types.js';
 
 describe('OutboxPublisher', () => {
   it('publishes pending market events and marks outbox records as published', async () => {

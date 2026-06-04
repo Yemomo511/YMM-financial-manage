@@ -1,6 +1,6 @@
 import type { IncomingMessage, Server as HttpServer } from 'node:http';
 import { WebSocket, WebSocketServer } from 'ws';
-import type { MarketTopic, NormalizedMarketEvent } from '../market/Market.types.js';
+import type { MarketTopic, NormalizedMarketEvent } from '../source/market/Market.types.js';
 
 interface MarketSubscriptionMessage {
   type: 'subscribe';

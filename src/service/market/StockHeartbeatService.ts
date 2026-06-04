@@ -1,7 +1,7 @@
-import { MarketNormalizer } from '../../market/MarketNormalizer.js';
-import type { AShareSourceAdapter, NormalizedMarketEvent } from '../../market/Market.types.js';
+import { MarketNormalizer } from '../../source/market/MarketNormalizer.js';
+import type { AShareSourceAdapter, NormalizedMarketEvent } from '../../source/market/Market.types.js';
 import type { MarketRepository } from '../../market/MarketRepository.types.js';
-import type { OutboxPublisher } from '../../market/OutboxPublisher.js';
+import type { OutboxPublisher } from '../../source/market/OutboxPublisher.js';
 import { RxServiceBusBase } from '../bus/RxServiceBusBase.js';
 import type { ServiceEventEnvelope } from '../bus/ServiceEvent.types.js';
 

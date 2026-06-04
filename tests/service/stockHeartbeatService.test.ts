@@ -1,10 +1,10 @@
 import { firstValueFrom } from 'rxjs';
 import { describe, expect, it } from 'vitest';
 import { InMemoryEventHubService } from '../../src/event/InMemoryEventHubService.js';
-import { InMemoryMarketRepository } from '../../src/market/InMemoryMarketRepository.js';
-import { OutboxPublisher } from '../../src/market/OutboxPublisher.js';
+import { InMemoryMarketRepository } from '../../src/source/market/InMemoryMarketRepository.js';
+import { OutboxPublisher } from '../../src/source/market/OutboxPublisher.js';
 import { StockHeartbeatService } from '../../src/service/market/StockHeartbeatService.js';
-import type { AShareSourceAdapter, RawMarketEvent } from '../../src/market/Market.types.js';
+import type { AShareSourceAdapter, RawMarketEvent } from '../../src/source/market/Market.types.js';
 
 class SingleQuoteAdapter implements AShareSourceAdapter {
   async connect(): Promise<void> {}
