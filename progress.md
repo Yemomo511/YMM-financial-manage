@@ -108,6 +108,21 @@
   - `/Users/bytedance/Project/Open/YMM-financial-manage/tsconfig.server.json`
   - `/Users/bytedance/Project/Open/YMM-financial-manage/package.json`
 
+### 阶段 17：修复 Next HMR WebSocket 被业务网关拦截
+- **状态：** complete
+- 执行的操作：
+  - 定位用户报错中的 `/_next/webpack-hmr` 属于 Next.js dev 热更新 WebSocket
+  - 将 `MarketWebSocketGateway` 改为 `noServer` 模式，仅对 `/ws/market` 执行 `handleUpgrade`
+  - 为 HMR upgrade 穿透补充回归测试
+  - 启动本地 dev 服务验证页面、HMR WebSocket 和业务 WebSocket
+- 创建/修改的文件：
+  - `/Users/bytedance/Project/Open/YMM-financial-manage/src/app/MarketApplication.ts`
+  - `/Users/bytedance/Project/Open/YMM-financial-manage/src/stream/MarketWebSocketGateway.ts`
+  - `/Users/bytedance/Project/Open/YMM-financial-manage/tests/stream/marketWebSocketGateway.test.ts`
+  - `/Users/bytedance/Project/Open/YMM-financial-manage/task_plan.md`
+  - `/Users/bytedance/Project/Open/YMM-financial-manage/findings.md`
+  - `/Users/bytedance/Project/Open/YMM-financial-manage/progress.md`
+
 ## 测试结果
 | 测试 | 输入 | 预期结果 | 实际结果 | 状态 |
 |------|------|---------|---------|------|
@@ -126,21 +141,26 @@
 | Next 生产构建 | `pnpm build` | 服务端 TS 编译和 Next 构建通过 | exit 0 | 通过 |
 | Next 页面手动验收 | `fetch http://127.0.0.1:3000/` | 返回 200 且包含 Next 页面内容 | status 200 | 通过 |
 | UI 迁移后 WebSocket 验收 | Node WebSocket 客户端订阅 `600519.SH` | 收到 `market.stock.tick` | 收到 tick | 通过 |
+| HMR 回归测试 | `pnpm test tests/stream/marketWebSocketGateway.test.ts` | `/ws/market` 可用，`/_next/webpack-hmr` 不被业务网关拦截 | 2 tests passed | 通过 |
+| HMR 手动验收 | Node WebSocket 连接 `ws://127.0.0.1:3000/_next/webpack-hmr?id=manual-test` | WebSocket open | `hmr-open` | 通过 |
+| HMR 修复后页面验收 | `fetch http://127.0.0.1:3000/` | 返回 200 | status 200 | 通过 |
+| HMR 修复后业务 WebSocket 验收 | Node WebSocket 客户端订阅 `600519.SH` | 收到 `market.stock.tick` | `market.stock.tick 600519.SH eastmoney-public` | 通过 |
 
 ## 错误日志
 | 时间戳 | 错误 | 尝试次数 | 解决方案 |
 |--------|------|---------|---------|
 | 2026-06-03 | `pnpm prisma:generate` 因 `binaries.prisma.sh` 网络失败 | 2 | 使用 `DATABASE_URL=... pnpm exec prisma validate` 校验 schema |
 | 2026-06-03 | 沙箱内 WebSocket 监听/连接 localhost 返回 EPERM | 2 | 使用提升权限运行 WebSocket 测试和手动验收 |
+| 2026-06-04 | Next HMR WebSocket `/_next/webpack-hmr` 连接失败 | 1 | 将业务 WebSocket 改为 `noServer` 模式，只处理 `/ws/market` upgrade |
 
 ## 五问重启检查
 | 问题 | 答案 |
 |------|------|
-| 我在哪里？ | 阶段 16：UI 迁移到 Next.js React JSX 已完成 |
+| 我在哪里？ | 阶段 17：Next HMR WebSocket 修复已完成 |
 | 我要去哪里？ | 可继续接真实 AI 模型、真实 PostgreSQL Repository 或 Redis 消费组 |
-| 目标是什么？ | UI 从静态 HTML 迁移到 Next.js React JSX，同时保持实时 WebSocket 行情能力 |
-| 我学到了什么？ | Next 会自动调整主 tsconfig，需要单独保留服务端 emit 配置 |
-| 我做了什么？ | 完成 Next App Router 页面、React 状态管理、Next request handler 集成和验证 |
+| 目标是什么？ | 保持 `/ws/market` 实时行情能力，同时让 Next dev HMR WebSocket 正常工作 |
+| 我学到了什么？ | `ws` 绑定 server/path 时会先接管 upgrade，非匹配路径可能被业务网关提前拒绝 |
+| 我做了什么？ | 改为手动筛选 `/ws/market` upgrade，并验证页面、HMR 和业务 WebSocket |
 
 ---
 *每个阶段完成后或遇到错误时更新此文件*

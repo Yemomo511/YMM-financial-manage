@@ -1,4 +1,4 @@
-import type { Server as HttpServer } from 'node:http';
+import type { IncomingMessage, Server as HttpServer } from 'node:http';
 import { WebSocket, WebSocketServer } from 'ws';
 import type { MarketTopic, NormalizedMarketEvent } from '../market/Market.types.js';
 
@@ -22,7 +22,16 @@ export class MarketWebSocketGateway {
   private readonly subscriptions = new Map<WebSocket, ClientSubscription>();
 
   constructor(httpServer: HttpServer) {
-    this.webSocketServer = new WebSocketServer({ server: httpServer, path: '/ws/market' });
+    this.webSocketServer = new WebSocketServer({ noServer: true });
+    httpServer.on('upgrade', (request, socket, head) => {
+      if (!this.shouldHandleUpgrade(request)) {
+        return;
+      }
+
+      this.webSocketServer.handleUpgrade(request, socket, head, (webSocket) => {
+        this.webSocketServer.emit('connection', webSocket, request);
+      });
+    });
     this.webSocketServer.on('connection', (socket) => this.handleConnection(socket));
   }
 
@@ -82,6 +91,14 @@ export class MarketWebSocketGateway {
     } catch {
       return null;
     }
+  }
+
+  private shouldHandleUpgrade(request: IncomingMessage): boolean {
+    const requestUrl = request.url ?? '';
+    const queryIndex = requestUrl.indexOf('?');
+    const pathname = queryIndex === -1 ? requestUrl : requestUrl.slice(0, queryIndex);
+
+    return pathname === '/ws/market';
   }
 
   private shouldReceiveEvent(subscription: ClientSubscription, event: NormalizedMarketEvent): boolean {

@@ -4,7 +4,7 @@
 在 `docs/prd` 目录输出模拟炒股系统的架构设计与 A 股监听/消息队列一期实现方案，并落地最小可运行的 A 股实时 WebSocket 看板。
 
 ## 当前阶段
-阶段 16
+阶段 17
 
 ## 各阶段
 
@@ -107,6 +107,13 @@
 - [x] 保持 `/ws/market` 协议兼容
 - **状态：** complete
 
+### 阶段 17：修复 Next HMR WebSocket 被业务网关拦截
+- [x] 定位 `/_next/webpack-hmr` 连接失败根因
+- [x] 将业务 WebSocket 网关改为只手动处理 `/ws/market`
+- [x] 为 HMR upgrade 穿透补充回归测试
+- [x] 验证页面、HMR WebSocket 与业务行情 WebSocket
+- **状态：** complete
+
 ## 关键问题
 1. 一期只做 A 股监听与消息队列，如何定义边界，避免提前设计模型与实盘能力。
 2. Mock 交易系统中哪些账户信息需要预置在数据库中，才能满足未来大模型接入。
@@ -123,12 +130,14 @@
 | 服务层统一使用 RxJS Subject + Observable | 满足每个服务独立事件总线，同时避免外部直接 next 服务内部事件 |
 | AI 理解与决策本期只做接口占位 | 保留应用侧架构，不引入真实模型、API Key 和成本控制复杂度 |
 | UI 层迁移到 Next.js App Router | 后续可用 React 组件管理状态和页面拆分，避免继续维护静态 HTML 与手写 DOM |
+| 业务 WebSocket 使用 `noServer` 并手动筛选 `/ws/market` | 避免 `ws` 抢先拒绝 Next.js `/_next/webpack-hmr` 等非业务 upgrade 请求 |
 
 ## 遇到的错误
 | 错误 | 尝试次数 | 解决方案 |
 |------|---------|---------|
 | `pnpm prisma:generate` 沙箱内无法下载 Prisma engine | 1 | 申请联网后仍遇到 ECONNRESET，改用 `DATABASE_URL=... pnpm exec prisma validate` 完成 schema 校验 |
 | WebSocket 测试在沙箱内监听/连接 127.0.0.1 返回 EPERM | 2 | 使用提升权限运行端口监听测试和本地 WebSocket 验收 |
+| Next HMR WebSocket 被 `/ws/market` 网关拦截并失败 | 1 | 改用 `WebSocketServer({ noServer: true })`，仅对 `/ws/market` 执行 `handleUpgrade` |
 
 ## 备注
 - 随着进度更新阶段状态：pending → in_progress → complete

@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { createServer } from 'node:http';
 import { AddressInfo } from 'node:net';
 import WebSocket from 'ws';
@@ -43,6 +44,49 @@ describe('MarketWebSocketGateway', () => {
       payload: {
         lastPrice: 1688,
       },
+    });
+  });
+
+  it('leaves Next.js HMR websocket upgrades to the Next request handler', async () => {
+    const httpServer = createServer();
+    new MarketWebSocketGateway(httpServer);
+    httpServer.on('upgrade', (request, socket) => {
+      if (!request.url?.startsWith('/_next/webpack-hmr')) {
+        return;
+      }
+
+      const websocketKey = request.headers['sec-websocket-key'];
+      if (typeof websocketKey !== 'string') {
+        socket.destroy();
+        return;
+      }
+
+      const acceptKey = createHash('sha1')
+        .update(`${websocketKey}258EAFA5-E914-47DA-95CA-C5AB0DC85B11`)
+        .digest('base64');
+
+      socket.write([
+        'HTTP/1.1 101 Switching Protocols',
+        'Upgrade: websocket',
+        'Connection: Upgrade',
+        `Sec-WebSocket-Accept: ${acceptKey}`,
+        '',
+        '',
+      ].join('\r\n'));
+    });
+
+    await new Promise<void>((resolve) => httpServer.listen(0, '127.0.0.1', resolve));
+    servers.push(httpServer);
+    const port = (httpServer.address() as AddressInfo).port;
+    const hmrClient = new WebSocket(`ws://127.0.0.1:${port}/_next/webpack-hmr?id=test`);
+    servers.push(hmrClient);
+
+    await new Promise<void>((resolve, reject) => {
+      hmrClient.on('open', () => {
+        hmrClient.close();
+        resolve();
+      });
+      hmrClient.on('error', reject);
     });
   });
 });

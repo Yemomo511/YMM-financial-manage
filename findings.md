@@ -29,6 +29,7 @@
 | `MarketApplication` 只做依赖组合和生命周期管理 | 避免启动器继续堆积轮询、广播、AI 和视图逻辑 |
 | AI 理解/决策当前只做占位事件 | 满足应用侧分层，同时保持当前阶段不接真实模型 |
 | UI 从静态 HTML 迁移到 Next.js React JSX | 页面状态由 React hooks 管理，Express 统一交给 Next request handler 渲染 |
+| `MarketWebSocketGateway` 使用 `noServer` 手动接管 `/ws/market` | 避免 `ws` 对非业务 upgrade 路径返回 400，保证 Next HMR WebSocket 由 Next 处理 |
 
 ## 遇到的问题
 | 问题 | 解决方案 |
@@ -36,6 +37,7 @@
 | 目前仓库实现代码很少，缺少现成上下文 | 文档中用模块契约和数据流约束后续实现边界 |
 | Prisma engine 在受限网络下下载不稳定 | 使用 `prisma validate` 校验 schema，并避免运行时代码强依赖生成客户端 |
 | 沙箱禁止本地端口监听与连接 | WebSocket 自动化测试和本地验收使用提升权限执行 |
+| Next HMR 连接 `/_next/webpack-hmr` 失败 | 原因是业务 WebSocket 网关抢先绑定 HTTP server upgrade；已改为只处理 `/ws/market` |
 
 ## 资源
 - `/Users/bytedance/Project/Open/YMM-financial-manage/AGENTS.md`
@@ -55,6 +57,8 @@
 - 本地看板通过 Next.js 在 `http://127.0.0.1:3000` 提供首屏行情表格
 - WebSocket 手动验收收到 `market.stock.tick`，示例来源为 `eastmoney-public`
 - UI 迁移后 HTTP 验收返回 200，响应包含 Next 标记、页面标题和默认订阅股票
+- HMR 修复后 `ws://127.0.0.1:3000/_next/webpack-hmr?id=manual-test` 可正常 `open`
+- HMR 修复后业务 `ws://127.0.0.1:3000/ws/market` 仍可收到 `market.stock.tick`
 
 ---
 *每执行2次查看/浏览器/搜索操作后更新此文件*

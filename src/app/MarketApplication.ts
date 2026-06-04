@@ -24,7 +24,7 @@ interface NextAppServer {
   getRequestHandler(): (request: unknown, response: unknown) => Promise<void>;
 }
 
-type NextFactory = (options: { dev: boolean; dir: string }) => NextAppServer;
+type NextFactory = (options: { dev: boolean; dir: string; httpServer: HttpServer }) => NextAppServer;
 
 /**
  * @description A 股实时行情应用。
@@ -87,7 +87,11 @@ export class MarketApplication {
   async start(): Promise<void> {
     const nextModule = await import('next');
     const createNextServer = (nextModule.default ?? nextModule) as unknown as NextFactory;
-    this.nextApp = createNextServer({ dev: this.options.isDev, dir: this.options.nextDir });
+    this.nextApp = createNextServer({
+      dev: this.options.isDev,
+      dir: this.options.nextDir,
+      httpServer: this.httpServer,
+    });
     this.nextRequestHandler = this.nextApp.getRequestHandler();
     await this.nextApp.prepare();
     await new Promise<void>((resolve) => {
