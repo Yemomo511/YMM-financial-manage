@@ -73,6 +73,25 @@
   - `/Users/bytedance/Project/Open/YMM-financial-manage/.env.example`
   - `/Users/bytedance/Project/Open/YMM-financial-manage/docker-compose.yml`
 
+### 阶段 13-15：RxJS 分层事件架构重构
+- **状态：** complete
+- 执行的操作：
+  - 新增 `rxjs` 依赖
+  - 新增 `RxServiceBusBase` 与统一服务事件类型
+  - 新增 `StockHeartbeatService`，负责股票心跳、轮询、标准化、写库和 Outbox
+  - 新增 `ServerBroadcastService`，统一接收服务层事件并广播到 WebSocket
+  - 新增 AI 理解、AI 决策和视图可视化应用侧占位服务
+  - 将 `MarketApplication` 调整为依赖组合与生命周期编排器
+  - 更新 `ARCHITECTURE.md` 与 README 的分层说明
+- 创建/修改的文件：
+  - `/Users/bytedance/Project/Open/YMM-financial-manage/src/service`
+  - `/Users/bytedance/Project/Open/YMM-financial-manage/src/application`
+  - `/Users/bytedance/Project/Open/YMM-financial-manage/src/app/MarketApplication.ts`
+  - `/Users/bytedance/Project/Open/YMM-financial-manage/tests/service`
+  - `/Users/bytedance/Project/Open/YMM-financial-manage/tests/application`
+  - `/Users/bytedance/Project/Open/YMM-financial-manage/ARCHITECTURE.md`
+  - `/Users/bytedance/Project/Open/YMM-financial-manage/README.md`
+
 ## 测试结果
 | 测试 | 输入 | 预期结果 | 实际结果 | 状态 |
 |------|------|---------|---------|------|
@@ -86,6 +105,7 @@
 | Prisma schema 校验 | `DATABASE_URL=... pnpm exec prisma validate` | schema valid | valid | 通过 |
 | WebSocket 手动验收 | Node WebSocket 客户端订阅 `600519.SH` | 6 秒内收到 `market.stock.tick` | 收到 `eastmoney-public` tick | 通过 |
 | 页面静态验收 | `fetch http://127.0.0.1:3000/` | 返回 200 且包含看板与 WS 逻辑 | status 200 | 通过 |
+| RxJS 分层测试 | `pnpm test` | 服务总线、股票心跳、服务端广播、AI 应用侧占位测试通过 | 11 files / 12 tests passed | 通过 |
 
 ## 错误日志
 | 时间戳 | 错误 | 尝试次数 | 解决方案 |
@@ -96,11 +116,11 @@
 ## 五问重启检查
 | 问题 | 答案 |
 |------|------|
-| 我在哪里？ | 阶段 12：文档与最终验证已完成 |
-| 我要去哪里？ | 可进入真实 PostgreSQL Repository、真实 Redis 消费组或 AI Context 下一阶段 |
-| 目标是什么？ | 完成 PRD 架构和 Task A，并能通过 WebSocket 实时看到 A 股信息 |
-| 我学到了什么？ | 公共源可用于本地实时链路，需用 Mock fallback 保证非交易时段可验收 |
-| 我做了什么？ | 完成公共源轮询、标准化、Outbox、Redis Stream 适配、WebSocket 网关和实时看板 |
+| 我在哪里？ | 阶段 15：RxJS 分层事件架构重构已完成 |
+| 我要去哪里？ | 可继续接真实 AI 模型、真实 PostgreSQL Repository 或 Redis 消费组 |
+| 目标是什么？ | 服务层统一广播/接口/心跳，应用侧承载 AI 理解、决策和视图可视化 |
+| 我学到了什么？ | 私有 Subject + 公开 Observable 能清晰隔离服务事件写入和应用侧订阅 |
+| 我做了什么？ | 完成 RxJS 服务总线、股票心跳服务、广播服务、AI 占位服务和文档同步 |
 
 ---
 *每个阶段完成后或遇到错误时更新此文件*

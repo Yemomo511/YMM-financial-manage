@@ -19,6 +19,32 @@ Mock Financial Manage. Plan For Stock, Exchange rate, Futures And Interest rate
 - 通过 `/ws/market` WebSocket 推送给浏览器
 - `public/index.html` 提供本地实时行情看板
 
+### 当前分层架构
+
+运行时已拆成三层：
+
+- 基础市场能力层：`src/market`、`src/event`、`src/account`
+- 服务层：`src/service`，包含 RxJS 服务事件总线、股票心跳和服务端广播
+- 应用侧：`src/application`，包含 AI 理解、AI 决策和视图可视化占位服务
+
+核心事件链路：
+
+```text
+股票心跳服务
+-> market.stock.tick 服务事件
+-> 服务端广播服务
+-> /ws/market
+-> 行情看板
+```
+
+AI 链路当前为接口占位：
+
+```text
+market.stock.tick
+-> AI 理解事件
+-> AI 决策事件 observe
+```
+
 ### 本地启动
 
 ```bash
