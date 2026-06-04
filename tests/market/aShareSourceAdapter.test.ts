@@ -2,11 +2,13 @@ import { describe, expect, it, vi } from 'vitest';
 import { EastmoneyPublicAdapter } from '../../src/source/market/EastmoneyPublicAdapter.js';
 
 describe('EastmoneyPublicAdapter', () => {
-  it('maps A share symbols to eastmoney secids and falls back to mock quotes when fetch fails', async () => {
-    const fetchQuote = vi.fn().mockRejectedValue(new Error('network unavailable'));
+  it('maps A share symbols to eastmoney secids and falls back to mock quotes when API fails', async () => {
+    const marketApi = {
+      getQuote: vi.fn().mockRejectedValue(new Error('network unavailable')),
+    };
     const adapter = new EastmoneyPublicAdapter({
-      fetchQuote,
       fallbackEnabled: true,
+      marketApi,
       symbols: ['600519.SH', '000001.SZ'],
     });
 
@@ -18,6 +20,7 @@ describe('EastmoneyPublicAdapter', () => {
 
     expect(adapter.toEastmoneySecid('600519.SH')).toBe('1.600519');
     expect(adapter.toEastmoneySecid('000001.SZ')).toBe('0.000001');
+    expect(marketApi.getQuote).toHaveBeenCalledWith('600519.SH');
     expect(firstEvent.value).toMatchObject({
       kind: 'quote',
       source: 'mock-replay',

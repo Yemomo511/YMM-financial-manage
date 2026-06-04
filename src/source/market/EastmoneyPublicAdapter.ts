@@ -1,24 +1,13 @@
+import { YFEastmoneyMarketApi } from '../../base/network/YFEastmoneyMarketApi.js';
+
+import type { YFEastmoneyQuoteResponse } from '../../base/network/YFEastmoneyMarketApi.js';
 import type { AShareSourceAdapter, RawMarketEvent, RawMarketQuoteData } from './Market.types.js';
 
 export interface EastmoneyPublicAdapterOptions {
-  symbols: string[];
   fallbackEnabled?: boolean;
   fetchQuote?: (url: string) => Promise<unknown>;
-}
-
-interface EastmoneyQuoteResponse {
-  data?: {
-    f43?: number;
-    f44?: number;
-    f45?: number;
-    f46?: number;
-    f47?: number;
-    f57?: string;
-    f58?: string;
-    f60?: number;
-    f170?: number;
-    f168?: number;
-  };
+  marketApi?: Pick<YFEastmoneyMarketApi, 'getQuote'>;
+  symbols: string[];
 }
 
 /**
@@ -29,12 +18,19 @@ export class EastmoneyPublicAdapter implements AShareSourceAdapter {
   private connected = false;
   private symbols: string[];
   private readonly fallbackEnabled: boolean;
-  private readonly fetchQuote: (url: string) => Promise<unknown>;
+  private readonly marketApi: Pick<YFEastmoneyMarketApi, 'getQuote'>;
 
   constructor(options: EastmoneyPublicAdapterOptions) {
     this.symbols = options.symbols;
     this.fallbackEnabled = options.fallbackEnabled ?? true;
-    this.fetchQuote = options.fetchQuote ?? this.defaultFetchQuote;
+    const fetchQuote = options.fetchQuote;
+    this.marketApi =
+      options.marketApi ??
+      (fetchQuote
+        ? {
+            getQuote: async (symbol) => fetchQuote(this.buildQuoteUrl(symbol)) as Promise<YFEastmoneyQuoteResponse>,
+          }
+        : new YFEastmoneyMarketApi());
   }
 
   /**
@@ -93,9 +89,9 @@ export class EastmoneyPublicAdapter implements AShareSourceAdapter {
 
   private async readQuoteWithFallback(symbol: string): Promise<RawMarketEvent> {
     try {
-      const response = await this.fetchQuote(this.buildQuoteUrl(symbol));
+      const response = await this.marketApi.getQuote(symbol);
 
-      return this.parseQuoteResponse(symbol, response as EastmoneyQuoteResponse);
+      return this.parseQuoteResponse(symbol, response);
     } catch (error) {
       if (!this.fallbackEnabled) {
         throw error;
@@ -122,7 +118,7 @@ export class EastmoneyPublicAdapter implements AShareSourceAdapter {
     return `https://push2.eastmoney.com/api/qt/stock/get?secid=${this.toEastmoneySecid(symbol)}&fields=${fields}`;
   }
 
-  private parseQuoteResponse(symbol: string, response: EastmoneyQuoteResponse): RawMarketEvent {
+  private parseQuoteResponse(symbol: string, response: YFEastmoneyQuoteResponse): RawMarketEvent {
     const data = response.data;
 
     if (!data) {
@@ -179,13 +175,4 @@ export class EastmoneyPublicAdapter implements AShareSourceAdapter {
     };
   }
 
-  private async defaultFetchQuote(url: string): Promise<unknown> {
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      throw new Error(`Eastmoney request failed: ${response.status}`);
-    }
-
-    return response.json();
-  }
 }

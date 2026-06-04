@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MarketNormalizer } from '../../src/market/MarketNormalizer.js';
+import { MarketNormalizer } from '../../src/source/market/MarketNormalizer.js';
 
 describe('MarketNormalizer', () => {
   it('normalizes a raw A share quote into a market.stock.tick envelope', async () => {

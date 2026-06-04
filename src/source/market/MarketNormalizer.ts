@@ -1,4 +1,4 @@
-import type { NormalizedMarketEvent, RawMarketEvent } from '../source/market/Market.types.js';
+import type { NormalizedMarketEvent, RawMarketEvent } from './Market.types.js';
 
 /**
  * @description A 股行情标准化器。
