@@ -17,7 +17,7 @@ Mock Financial Manage. Plan For Stock, Exchange rate, Futures And Interest rate
 - 将行情标准化为 `market.stock.tick` 事件
 - 写入内存行情仓库、快照和 Outbox，并可发布到 Redis Stream 适配器
 - 通过 `/ws/market` WebSocket 推送给浏览器
-- `public/index.html` 提供本地实时行情看板
+- 使用 Next.js React JSX 实现本地实时行情看板
 
 ### 当前分层架构
 
@@ -26,6 +26,7 @@ Mock Financial Manage. Plan For Stock, Exchange rate, Futures And Interest rate
 - 基础市场能力层：`src/market`、`src/event`、`src/account`
 - 服务层：`src/service`，包含 RxJS 服务事件总线、股票心跳和服务端广播
 - 应用侧：`src/application`，包含 AI 理解、AI 决策和视图可视化占位服务
+- UI 层：`app/page.tsx`、`app/layout.tsx`、`app/globals.css`，由 Next.js 渲染
 
 核心事件链路：
 
@@ -134,6 +135,8 @@ DATABASE_URL=postgresql://ymm:ymm@127.0.0.1:5432/ymm_financial_manage pnpm exec 
 pnpm test
 pnpm build
 ```
+
+`pnpm build` 会同时执行服务端 TypeScript 编译和 Next.js 生产构建。
 
 WebSocket 手动验收：
 

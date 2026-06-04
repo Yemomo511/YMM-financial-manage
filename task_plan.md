@@ -4,7 +4,7 @@
 在 `docs/prd` 目录输出模拟炒股系统的架构设计与 A 股监听/消息队列一期实现方案，并落地最小可运行的 A 股实时 WebSocket 看板。
 
 ## 当前阶段
-阶段 15
+阶段 16
 
 ## 各阶段
 
@@ -99,6 +99,14 @@
 - [x] 同步架构文档与验证结果
 - **状态：** complete
 
+### 阶段 16：UI 迁移到 Next.js React JSX
+- [x] 引入 Next.js / React / ReactDOM
+- [x] 将 `public/index.html` 迁移为 `app/page.tsx`
+- [x] 将内联样式迁移为 `app/globals.css`
+- [x] 将 Express 静态页面服务改为 Next request handler
+- [x] 保持 `/ws/market` 协议兼容
+- **状态：** complete
+
 ## 关键问题
 1. 一期只做 A 股监听与消息队列，如何定义边界，避免提前设计模型与实盘能力。
 2. Mock 交易系统中哪些账户信息需要预置在数据库中，才能满足未来大模型接入。
@@ -114,6 +122,7 @@
 | 当前运行时使用内存仓库闭环，Prisma schema 先固定数据库结构 | 避免本地必须启动数据库才能看到实时 WebSocket；数据库结构仍按 PRD 保留 |
 | 服务层统一使用 RxJS Subject + Observable | 满足每个服务独立事件总线，同时避免外部直接 next 服务内部事件 |
 | AI 理解与决策本期只做接口占位 | 保留应用侧架构，不引入真实模型、API Key 和成本控制复杂度 |
+| UI 层迁移到 Next.js App Router | 后续可用 React 组件管理状态和页面拆分，避免继续维护静态 HTML 与手写 DOM |
 
 ## 遇到的错误
 | 错误 | 尝试次数 | 解决方案 |

@@ -2,7 +2,7 @@ import 'dotenv/config';
 import path from 'node:path';
 import { MarketApplication, type MarketApplicationOptions } from './app/MarketApplication.js';
 
-export function createMarketApplicationOptions(env: NodeJS.ProcessEnv): MarketApplicationOptions {
+export function createMarketApplicationOptions(env: Record<string, string | undefined>): MarketApplicationOptions {
   return {
     port: Number(env.PORT ?? 3000),
     symbols: (env.WATCH_SYMBOLS ?? '600519.SH,000001.SZ')
@@ -10,7 +10,8 @@ export function createMarketApplicationOptions(env: NodeJS.ProcessEnv): MarketAp
       .map((symbol) => symbol.trim())
       .filter(Boolean),
     pollIntervalMs: Number(env.POLL_INTERVAL_MS ?? 3000),
-    publicDir: path.resolve(process.cwd(), 'public'),
+    nextDir: path.resolve(process.cwd()),
+    isDev: env.NODE_ENV !== 'production',
   };
 }
 

@@ -28,6 +28,7 @@
 | 服务层采用 RxJS 私有 Subject + 公开 Observable | 每个服务可以独立发事件，应用侧只能订阅，避免跨层写事件 |
 | `MarketApplication` 只做依赖组合和生命周期管理 | 避免启动器继续堆积轮询、广播、AI 和视图逻辑 |
 | AI 理解/决策当前只做占位事件 | 满足应用侧分层，同时保持当前阶段不接真实模型 |
+| UI 从静态 HTML 迁移到 Next.js React JSX | 页面状态由 React hooks 管理，Express 统一交给 Next request handler 渲染 |
 
 ## 遇到的问题
 | 问题 | 解决方案 |
@@ -47,11 +48,13 @@
 - `/Users/bytedance/Project/Open/YMM-financial-manage/src/service/bus/RxServiceBusBase.ts`
 - `/Users/bytedance/Project/Open/YMM-financial-manage/src/service/market/StockHeartbeatService.ts`
 - `/Users/bytedance/Project/Open/YMM-financial-manage/src/service/market/ServerBroadcastService.ts`
-- `/Users/bytedance/Project/Open/YMM-financial-manage/public/index.html`
+- `/Users/bytedance/Project/Open/YMM-financial-manage/app/page.tsx`
+- `/Users/bytedance/Project/Open/YMM-financial-manage/app/globals.css`
 
 ## 视觉/浏览器发现
-- 本地看板通过 `http://127.0.0.1:3000` 提供首屏行情表格
+- 本地看板通过 Next.js 在 `http://127.0.0.1:3000` 提供首屏行情表格
 - WebSocket 手动验收收到 `market.stock.tick`，示例来源为 `eastmoney-public`
+- UI 迁移后 HTTP 验收返回 200，响应包含 Next 标记、页面标题和默认订阅股票
 
 ---
 *每执行2次查看/浏览器/搜索操作后更新此文件*

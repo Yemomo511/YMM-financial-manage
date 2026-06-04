@@ -13,8 +13,10 @@
 - `基础市场能力层`：负责行情源 Adapter、行情标准化、Repository、Outbox、Redis Stream 等基础能力。
 - `服务层`：负责服务端广播、HTTP/WebSocket 接口、股票心跳和服务内事件总线。
 - `应用侧`：负责 AI 模型理解、AI 决策、视图可视化等业务组合能力。
+- `UI 层`：负责 Next.js React JSX 页面、样式和浏览器交互状态。
 
 `src/app/MarketApplication.ts` 只允许做依赖组合、启动和停止编排，不允许直接承载行情轮询、广播过滤、AI 决策等业务细节。
+UI 不再使用静态 `public/index.html`，页面实现必须放在 Next.js `app` 目录下。
 
 ### 1.3 RxJS 事件总线约束
 服务层统一使用 RxJS 构建事件总线：
@@ -43,6 +45,10 @@ StockHeartbeatService.events$
 
 ServerBroadcastService.events$
 -> ViewVisualizationApplicationService
+
+Next.js app/page.tsx
+-> /ws/market
+-> MarketWebSocketGateway
 ```
 
 ## 2. 命名风格

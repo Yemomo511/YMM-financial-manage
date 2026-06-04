@@ -14,6 +14,7 @@ describe('createMarketApplicationOptions', () => {
       symbols: ['600519.SH', '000001.SZ'],
       pollIntervalMs: 1500,
     });
-    expect(options.publicDir).toContain('public');
+    expect(options.nextDir).toBe(process.cwd());
+    expect(options.isDev).toBe(true);
   });
 });

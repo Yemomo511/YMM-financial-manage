@@ -92,6 +92,22 @@
   - `/Users/bytedance/Project/Open/YMM-financial-manage/ARCHITECTURE.md`
   - `/Users/bytedance/Project/Open/YMM-financial-manage/README.md`
 
+### 阶段 16：UI 迁移到 Next.js React JSX
+- **状态：** complete
+- 执行的操作：
+  - 新增 Next.js、React、ReactDOM 依赖与 React 类型依赖
+  - 将静态 `public/index.html` 迁移为 `app/page.tsx`
+  - 将内联 CSS 迁移为 `app/globals.css`
+  - 新增 `app/layout.tsx`、`next.config.mjs`、`tsconfig.server.json`
+  - 将 `MarketApplication` 中的静态文件服务替换为 Next request handler
+  - 保持 `/ws/market` WebSocket 订阅协议不变
+- 创建/修改的文件：
+  - `/Users/bytedance/Project/Open/YMM-financial-manage/app`
+  - `/Users/bytedance/Project/Open/YMM-financial-manage/src/app/MarketApplication.ts`
+  - `/Users/bytedance/Project/Open/YMM-financial-manage/tests/ui/MarketDashboardPage.test.tsx`
+  - `/Users/bytedance/Project/Open/YMM-financial-manage/tsconfig.server.json`
+  - `/Users/bytedance/Project/Open/YMM-financial-manage/package.json`
+
 ## 测试结果
 | 测试 | 输入 | 预期结果 | 实际结果 | 状态 |
 |------|------|---------|---------|------|
@@ -106,6 +122,10 @@
 | WebSocket 手动验收 | Node WebSocket 客户端订阅 `600519.SH` | 6 秒内收到 `market.stock.tick` | 收到 `eastmoney-public` tick | 通过 |
 | 页面静态验收 | `fetch http://127.0.0.1:3000/` | 返回 200 且包含看板与 WS 逻辑 | status 200 | 通过 |
 | RxJS 分层测试 | `pnpm test` | 服务总线、股票心跳、服务端广播、AI 应用侧占位测试通过 | 11 files / 12 tests passed | 通过 |
+| Next UI 渲染测试 | `pnpm test` | React JSX 页面可渲染标题、订阅输入和表格 | 12 files / 13 tests passed | 通过 |
+| Next 生产构建 | `pnpm build` | 服务端 TS 编译和 Next 构建通过 | exit 0 | 通过 |
+| Next 页面手动验收 | `fetch http://127.0.0.1:3000/` | 返回 200 且包含 Next 页面内容 | status 200 | 通过 |
+| UI 迁移后 WebSocket 验收 | Node WebSocket 客户端订阅 `600519.SH` | 收到 `market.stock.tick` | 收到 tick | 通过 |
 
 ## 错误日志
 | 时间戳 | 错误 | 尝试次数 | 解决方案 |
@@ -116,11 +136,11 @@
 ## 五问重启检查
 | 问题 | 答案 |
 |------|------|
-| 我在哪里？ | 阶段 15：RxJS 分层事件架构重构已完成 |
+| 我在哪里？ | 阶段 16：UI 迁移到 Next.js React JSX 已完成 |
 | 我要去哪里？ | 可继续接真实 AI 模型、真实 PostgreSQL Repository 或 Redis 消费组 |
-| 目标是什么？ | 服务层统一广播/接口/心跳，应用侧承载 AI 理解、决策和视图可视化 |
-| 我学到了什么？ | 私有 Subject + 公开 Observable 能清晰隔离服务事件写入和应用侧订阅 |
-| 我做了什么？ | 完成 RxJS 服务总线、股票心跳服务、广播服务、AI 占位服务和文档同步 |
+| 目标是什么？ | UI 从静态 HTML 迁移到 Next.js React JSX，同时保持实时 WebSocket 行情能力 |
+| 我学到了什么？ | Next 会自动调整主 tsconfig，需要单独保留服务端 emit 配置 |
+| 我做了什么？ | 完成 Next App Router 页面、React 状态管理、Next request handler 集成和验证 |
 
 ---
 *每个阶段完成后或遇到错误时更新此文件*

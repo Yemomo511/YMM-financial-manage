@@ -15,8 +15,16 @@ export interface MarketApplicationOptions {
   port: number;
   symbols: string[];
   pollIntervalMs: number;
-  publicDir: string;
+  nextDir: string;
+  isDev: boolean;
 }
+
+interface NextAppServer {
+  prepare(): Promise<void>;
+  getRequestHandler(): (request: unknown, response: unknown) => Promise<void>;
+}
+
+type NextFactory = (options: { dev: boolean; dir: string }) => NextAppServer;
 
 /**
  * @description A 股实时行情应用。
@@ -25,6 +33,8 @@ export interface MarketApplicationOptions {
 export class MarketApplication {
   private readonly app = express();
   private readonly httpServer: HttpServer;
+  private nextApp?: NextAppServer;
+  private nextRequestHandler?: (request: unknown, response: unknown) => Promise<void>;
   private readonly repository = new InMemoryMarketRepository();
   private readonly eventHub = new InMemoryEventHubService();
   private readonly webSocketGateway: MarketWebSocketGateway;
@@ -65,7 +75,9 @@ export class MarketApplication {
         this.serverBroadcastService.broadcastMarketEvent(event);
       }),
     );
-    this.app.use(express.static(options.publicDir));
+    this.app.all('*', (request, response) => {
+      this.nextRequestHandler?.(request, response);
+    });
   }
 
   /**
@@ -73,6 +85,11 @@ export class MarketApplication {
    * @returns 启动完成信号
    */
   async start(): Promise<void> {
+    const nextModule = await import('next');
+    const createNextServer = (nextModule.default ?? nextModule) as unknown as NextFactory;
+    this.nextApp = createNextServer({ dev: this.options.isDev, dir: this.options.nextDir });
+    this.nextRequestHandler = this.nextApp.getRequestHandler();
+    await this.nextApp.prepare();
     await new Promise<void>((resolve) => {
       this.httpServer.listen(this.options.port, '127.0.0.1', resolve);
     });
